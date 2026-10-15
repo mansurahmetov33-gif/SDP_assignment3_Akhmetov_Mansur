@@ -1,0 +1,106 @@
+
+@startuml
+title Multi-Channel Notification Gateway - Bridge Pattern
+
+skinparam classAttributeIconSize 0
+
+' =========================
+' Implementor
+' =========================
+
+interface MessageSender {
+    +sendMessage(recipient: String, title: String, body: String): boolean
+    +isAvailable(): boolean
+    +getChannelName(): String
+}
+
+class TelegramMessageSender {
+    -available: boolean = true
+    +sendMessage(recipient: String, title: String, body: String): boolean
+    +isAvailable(): boolean
+    +getChannelName(): String
+    +setAvailable(available: boolean): void
+}
+
+class EmailMessageSender {
+    -available: boolean = true
+    +sendMessage(recipient: String, title: String, body: String): boolean
+    +isAvailable(): boolean
+    +getChannelName(): String
+    +setAvailable(available: boolean): void
+}
+
+class SmsMessageSender {
+    -available: boolean = true
+    -MAX_LENGTH: int = 160
+    +sendMessage(recipient: String, title: String, body: String): boolean
+    +isAvailable(): boolean
+    +getChannelName(): String
+    +setAvailable(available: boolean): void
+}
+
+class KafkaEventSender {
+    -available: boolean = true
+    +sendMessage(recipient: String, title: String, body: String): boolean
+    +isAvailable(): boolean
+    +getChannelName(): String
+    +setAvailable(available: boolean): void
+}
+
+class PushNotificationSender {
+    -available: boolean = true
+    +sendMessage(recipient: String, title: String, body: String): boolean
+    +isAvailable(): boolean
+    +getChannelName(): String
+    +setAvailable(available: boolean): void
+}
+
+MessageSender <|.. TelegramMessageSender
+MessageSender <|.. EmailMessageSender
+MessageSender <|.. SmsMessageSender
+MessageSender <|.. KafkaEventSender
+MessageSender <|.. PushNotificationSender
+
+' =========================
+' Abstraction
+' =========================
+
+abstract class Notification {
+    #sender: MessageSender
+    +Notification(sender: MessageSender)
+    +setSender(sender: MessageSender): void
+    {abstract} +send(recipient: String, message: String): boolean
+}
+
+class UrgentNotification {
+    -fallbackSender: MessageSender
+    +UrgentNotification(sender: MessageSender, fallbackSender: MessageSender)
+    +send(recipient: String, message: String): boolean
+}
+
+class EncryptedNotification {
+    +EncryptedNotification(sender: MessageSender)
+    +send(recipient: String, message: String): boolean
+}
+
+class ScheduledBatchNotification {
+    +ScheduledBatchNotification(sender: MessageSender)
+    +send(recipient: String, message: String): boolean
+    +sendToAll(recipients: List<String>, message: String): void
+}
+
+class MarketingNotification {
+    +MarketingNotification(sender: MessageSender)
+    +send(recipient: String, message: String): boolean
+}
+
+Notification o-- MessageSender : Bridge
+
+Notification <|-- UrgentNotification
+Notification <|-- EncryptedNotification
+Notification <|-- ScheduledBatchNotification
+Notification <|-- MarketingNotification
+
+UrgentNotification --> MessageSender : fallbackSender
+
+@enduml
