@@ -2,6 +2,8 @@ package org.notificationgateway.sender;
 
 public class TelegramMessageSender implements MessageSender {
 
+    private boolean available = true;
+
     @Override
     public boolean sendMessage(String recipient, String title, String body) {
         if (!isAvailable()) {
@@ -18,11 +20,15 @@ public class TelegramMessageSender implements MessageSender {
 
     @Override
     public boolean isAvailable() {
-        return true;
+        return available;
     }
 
     @Override
     public String getChannelName() {
         return "Telegram";
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 }
